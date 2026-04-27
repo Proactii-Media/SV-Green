@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { ParallaxHero } from "~/components/ParallaxHero";
+import emailjs from "@emailjs/browser";
 
 export default function ContactUsPage() {
   const [formData, setFormData] = useState({
@@ -25,10 +26,38 @@ export default function ContactUsPage() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
+
+    try {
+      await emailjs.send(
+        "service_cxdrw1u", // Service ID
+        "template_5av20q8", //Template ID
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          company: formData.company,
+          message: formData.message,
+          reply_to: formData.email, //
+        },
+        "gbVjSYrP-EZoBj7Jd", // Public Key
+      );
+
+      setIsSubmitted(true);
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+        message: "",
+      });
+
+      setTimeout(() => setIsSubmitted(false), 3000);
+    } catch (error) {
+      console.error("Email send failed:", error);
+    }
   };
 
   const locations = [
