@@ -25,25 +25,33 @@ export default function ContactUsPage() {
   });
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isLoading) return; // prevent spam clicks
+
+    setIsLoading(true);
+
     try {
-      await emailjs.send(
-        "service_cxdrw1u", // Service ID
-        "template_5av20q8", //Template ID
+      const response = await emailjs.send(
+        "service_cxdrw1u",
+        "template_5av20q8",
         {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
           company: formData.company,
           message: formData.message,
-          reply_to: formData.email, //
+          reply_to: formData.email,
         },
-        "gbVjSYrP-EZoBj7Jd", // Public Key
+        "gbVjSYrP-EZoBj7Jd",
       );
 
+      console.log("SUCCESS:", response);
+
+      // ✅ Only after success
       setIsSubmitted(true);
 
       setFormData({
@@ -56,7 +64,10 @@ export default function ContactUsPage() {
 
       setTimeout(() => setIsSubmitted(false), 3000);
     } catch (error) {
-      console.error("Email send failed:", error);
+      console.error("FAILED:", error);
+      alert("Failed to send message. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -371,7 +382,9 @@ export default function ContactUsPage() {
                   style={{ opacity: 0.1 }}
                 />
                 <span className="relative flex items-center justify-center gap-2">
-                  {isSubmitted ? (
+                  {isLoading ? (
+                    "Sending..."
+                  ) : isSubmitted ? (
                     <>
                       <CheckCircle2 className="w-5 h-5" />
                       Message Sent Successfully!
