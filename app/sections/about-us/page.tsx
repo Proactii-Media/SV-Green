@@ -21,7 +21,7 @@ function AboutSection() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              We are SV Green India
+              We are a SV Green India
             </motion.span>
 
             <motion.h2
