@@ -13,7 +13,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { ParallaxHero } from "~/components/ParallaxHero";
-import emailjs from "@emailjs/browser";
 
 export default function ContactUsPage() {
   const [formData, setFormData] = useState({
@@ -30,28 +29,25 @@ export default function ContactUsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isLoading) return; // prevent spam clicks
+    if (isLoading) return;
 
     setIsLoading(true);
 
     try {
-      const response = await emailjs.send(
-        "service_cxdrw1u",
-        "template_5av20q8",
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          company: formData.company,
-          message: formData.message,
-          reply_to: formData.email,
+      const res = await fetch("http://localhost:5000/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        "gbVjSYrP-EZoBj7Jd",
-      );
+        body: JSON.stringify(formData),
+      });
 
-      console.log("SUCCESS:", response);
+      const data = await res.json();
 
-      // ✅ Only after success
+      if (!res.ok) throw new Error(data.message);
+
+      console.log("SUCCESS:", data);
+
       setIsSubmitted(true);
 
       setFormData({
@@ -65,7 +61,7 @@ export default function ContactUsPage() {
       setTimeout(() => setIsSubmitted(false), 3000);
     } catch (error) {
       console.error("FAILED:", error);
-      alert("Failed to send message. Please try again.");
+      alert("Failed to send message.");
     } finally {
       setIsLoading(false);
     }
