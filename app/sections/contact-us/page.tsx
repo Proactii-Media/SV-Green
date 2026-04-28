@@ -30,26 +30,28 @@ export default function ContactUsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isLoading) return;
+    if (isLoading) return; // prevent spam clicks
 
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await emailjs.send(
+        "service_cxdrw1u",
+        "template_5av20q8",
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          company: formData.company,
+          message: formData.message,
+          reply_to: formData.email,
         },
-        body: JSON.stringify(formData),
-      });
+        "gbVjSYrP-EZoBj7Jd",
+      );
 
-      const data = await response.json();
+      console.log("SUCCESS:", response);
 
-      if (!response.ok || !data.success) {
-        throw new Error("Failed to send");
-      }
-
-      // ✅ Success
+      // ✅ Only after success
       setIsSubmitted(true);
 
       setFormData({
@@ -68,6 +70,7 @@ export default function ContactUsPage() {
       setIsLoading(false);
     }
   };
+
   const locations = [
     {
       city: "Vapi",
